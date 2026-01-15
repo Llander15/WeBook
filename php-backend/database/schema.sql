@@ -6,7 +6,7 @@ USE webook_db;
 
 -- Users table
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE users (
 
 -- Books table
 CREATE TABLE books (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     author VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE books (
 
 -- Cart items table
 CREATE TABLE cart_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
@@ -39,7 +39,7 @@ CREATE TABLE cart_items (
 
 -- Orders table (for checkout history)
 CREATE TABLE orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     total_amount REAL NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
@@ -48,7 +48,7 @@ CREATE TABLE orders (
 
 -- Order items table
 CREATE TABLE order_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     order_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL,
