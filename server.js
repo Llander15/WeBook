@@ -60,14 +60,18 @@ async function handleBooks(req, res) {
 
     switch (method) {
       case 'GET':
-        if (id) {
-          const [rows] = await conn.query('SELECT * FROM books WHERE id = ?', [id]);
-          res.json(rows[0] || null);
-        } else {
-          const [rows] = await conn.query('SELECT * FROM books ORDER BY created_at DESC');
-          res.json(rows);
+        try {
+          if (id) {
+            const [rows] = await conn.query('SELECT * FROM books WHERE id = ?', [id]);
+            res.json(rows[0] || null);
+          } else {
+            const [rows] = await conn.query('SELECT * FROM books ORDER BY created_at DESC');
+            console.log('Books fetched successfully:', rows.length, 'books');
+            res.json(rows);
+          }
+        } finally {
+          conn.release();
         }
-        conn.release();
         break;
 
       case 'POST':
@@ -118,7 +122,7 @@ async function handleBooks(req, res) {
     }
   } catch (error) {
     console.error('Books error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
 
