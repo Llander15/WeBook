@@ -23,7 +23,7 @@ CREATE TABLE books (
     category VARCHAR(50) NOT NULL,
     price REAL NOT NULL,
     stocks INT NOT NULL DEFAULT 0,
-    cover VARCHAR(500),
+    cover VARCHAR(255),
     created_at DATE,
     updated_at DATE
 );

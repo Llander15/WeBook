@@ -71,6 +71,14 @@ async function handleBooks(req, res) {
 
       case 'POST':
         const { title, author, category, price, stocks, cover } = req.body;
+        
+        // Validate cover URL length
+        if (cover && cover.length > 255) {
+          res.status(400).json({ error: 'URL too long. Maximum length is 255 characters.' });
+          conn.release();
+          return;
+        }
+        
         const [result] = await conn.query(
           'INSERT INTO books (title, author, category, price, stocks, cover) VALUES (?, ?, ?, ?, ?, ?)',
           [title, author, category, price, stocks, cover || '']
@@ -80,6 +88,14 @@ async function handleBooks(req, res) {
 
       case 'PUT':
         const bookData = req.body;
+        
+        // Validate cover URL length
+        if (bookData.cover && bookData.cover.length > 255) {
+          res.status(400).json({ error: 'URL too long. Maximum length is 255 characters.' });
+          conn.release();
+          return;
+        }
+        
         await conn.query(
           'UPDATE books SET title=?, author=?, category=?, price=?, stocks=?, cover=? WHERE id=?',
           [bookData.title, bookData.author, bookData.category, bookData.price, bookData.stocks, bookData.cover || '', id]
