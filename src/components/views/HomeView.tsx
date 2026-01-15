@@ -16,11 +16,12 @@ export const HomeView = () => {
     try {
       setIsLoading(true);
       const response = await fetch(`${API_URL}/books`);
-      if (!response.ok) throw new Error('Failed to fetch books');
+      if (!response.ok) throw new Error(`Failed to fetch books: ${response.status}`);
       const data = await response.json();
       setBooks(data);
     } catch (error) {
       console.error('Error fetching books:', error);
+      toast.error('Failed to load books: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsLoading(false);
     }

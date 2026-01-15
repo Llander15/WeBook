@@ -114,9 +114,8 @@ async function handleBooks(req, res) {
 
       default:
         res.status(405).json({ error: 'Method not allowed' });
+        conn.release();
     }
-
-    conn.release();
   } catch (error) {
     console.error('Books error:', error);
     res.status(500).json({ error: error.message });
@@ -167,9 +166,8 @@ async function handleUsers(req, res) {
 
       default:
         res.status(405).json({ error: 'Method not allowed' });
+        conn.release();
     }
-
-    conn.release();
   } catch (error) {
     console.error('Users error:', error);
     res.status(500).json({ error: error.message });
