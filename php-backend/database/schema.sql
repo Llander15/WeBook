@@ -21,7 +21,7 @@ CREATE TABLE books (
     title VARCHAR(255) NOT NULL,
     author VARCHAR(100) NOT NULL,
     category VARCHAR(50) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
+    price FLOAT NOT NULL,
     stocks INT NOT NULL DEFAULT 0,
     cover VARCHAR(500),
     created_at DATE,
@@ -44,7 +44,7 @@ CREATE TABLE cart_items (
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    total_amount DECIMAL(10, 2) NOT NULL,
+    total_amount FLOAT NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
     created_at DATE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -56,7 +56,7 @@ CREATE TABLE order_items (
     order_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL,
-    price_at_purchase DECIMAL(10, 2) NOT NULL,
+    price_at_purchase FLOAT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE SET NULL
 );
