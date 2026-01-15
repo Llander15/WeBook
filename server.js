@@ -285,8 +285,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running' });
 });
 
-// Serve React app for all other routes
-app.use('*', (req, res) => {
+// Serve React app for all other routes (catch-all for SPA)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
