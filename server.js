@@ -175,7 +175,8 @@ async function handleAuth(req, res) {
       }
     } else if (action === 'register') {
       const hashedPassword = await bcrypt.hash(password, 10);
-      const role = email.includes('admin') ? 'admin' : 'user';
+      // Only admin@webook.com can be admin, all others are users
+      const role = email === 'admin@webook.com' ? 'admin' : 'user';
 
       try {
         const [result] = await conn.query(
