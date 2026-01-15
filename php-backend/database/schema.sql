@@ -11,8 +11,8 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) DEFAULT 'user',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATE,
+    updated_at DATE
 );
 
 -- Books table
@@ -24,8 +24,8 @@ CREATE TABLE books (
     price DECIMAL(10, 2) NOT NULL,
     stocks INT NOT NULL DEFAULT 0,
     cover VARCHAR(500),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATE,
+    updated_at DATE
 );
 
 -- Cart items table
@@ -34,7 +34,7 @@ CREATE TABLE cart_items (
     user_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
     UNIQUE KEY unique_user_book (user_id, book_id)
@@ -46,7 +46,7 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     total_amount DECIMAL(10, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
