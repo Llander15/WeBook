@@ -19,20 +19,41 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || '',
-  database: process.env.DB_NAME || 'webook_db',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+let pool;
+try {
+  pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASS || '',
+    database: process.env.DB_NAME || 'webook_db',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+  console.log('✅ Database pool initialized');
+} catch (err) {
+  console.warn('⚠️ Database connection failed:', err.message);
+  console.warn('App will run without database - API calls will fail gracefully');
+  pool = null;
+}
+
+// Helper function to check database availability
+function checkDatabase(res) {
+  if (!pool) {
+    res.status(503).json({ 
+      error: 'Database not available. Please set up MySQL on Railway or provide database credentials.' 
+    });
+    return false;
+  }
+  return true;
+}
 
 // ============ BOOKS ============
 async function handleBooks(req, res) {
   const { method } = req;
   const { id } = req.params;
+
+  if (!checkDatabase(res)) return;
 
   try {
     const conn = await pool.getConnection();
@@ -87,6 +108,8 @@ async function handleUsers(req, res) {
   const { method } = req;
   const { id } = req.params;
 
+  if (!checkDatabase(res)) return;
+
   try {
     const conn = await pool.getConnection();
 
@@ -134,6 +157,8 @@ async function handleUsers(req, res) {
 async function handleAuth(req, res) {
   const { action } = req.params;
   const { email, password, name } = req.body;
+
+  if (!checkDatabase(res)) return;
 
   try {
     const conn = await pool.getConnection();
@@ -187,6 +212,8 @@ async function handleAuth(req, res) {
 async function handleCart(req, res) {
   const { method } = req;
   const { userId } = req.params;
+
+  if (!checkDatabase(res)) return;
 
   try {
     const conn = await pool.getConnection();
