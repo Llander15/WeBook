@@ -16,11 +16,19 @@ export const HomeView = () => {
     try {
       setIsLoading(true);
       const response = await fetch(`${API_URL}/books`);
-      if (!response.ok) throw new Error('Failed to fetch books');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch books`);
+      }
       const data = await response.json();
-      setBooks(data);
+      if (Array.isArray(data)) {
+        setBooks(data);
+      } else {
+        console.warn('Unexpected data format - expected array:', data);
+        setBooks([]);
+      }
     } catch (error) {
-      toast.error('Failed to load books');
+      console.error('Error fetching books:', error);
+      toast.error('Failed to load books: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsLoading(false);
     }
