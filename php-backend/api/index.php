@@ -15,7 +15,16 @@ $database = new Database();
 $db = $database->connect();
 
 $method = $_SERVER['REQUEST_METHOD'];
-$request = explode('/', trim($_SERVER['PATH_INFO'] ?? '', '/'));
+
+// Parse the request URI to get the endpoint
+$request_uri = $_SERVER['REQUEST_URI'];
+// Remove /bookstore/php-backend/api/ from the beginning
+$path = parse_url($request_uri, PHP_URL_PATH);
+$path = str_replace('/bookstore/php-backend/api/', '', $path);
+$path = str_replace('/api/', '', $path); // fallback for different path structures
+$request = array_filter(explode('/', trim($path, '/')));
+$request = array_values($request); // reindex array
+
 $endpoint = $request[0] ?? '';
 $id = $request[1] ?? null;
 

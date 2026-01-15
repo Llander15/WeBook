@@ -32,6 +32,7 @@ interface AppState {
   setSearchQuery: (query: string) => void;
   
   // Book actions
+  setBooks: (books: Book[]) => void;
   addBook: (book: Book) => void;
   updateBook: (id: number, book: Partial<Book>) => void;
   deleteBook: (id: number) => void;
@@ -40,6 +41,7 @@ interface AppState {
   resetAdminFormDraft: () => void;
   
   // User actions
+  setUsers: (users: User[]) => void;
   addUser: (user: User) => void;
   updateUserRole: (id: number, role: 'admin' | 'user') => void;
   deleteUser: (id: number) => void;
@@ -105,6 +107,8 @@ export const useStore = create<AppState>((set, get) => ({
   setUser: (user) => set({ user }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   
+  setBooks: (books) => set({ books }),
+  
   addBook: (book) => set((state) => ({ books: [book, ...state.books] })),
   
   updateBook: (id, bookUpdate) => set((state) => ({
@@ -122,6 +126,8 @@ export const useStore = create<AppState>((set, get) => ({
   })),
   
   resetAdminFormDraft: () => set({ adminFormDraft: initialFormDraft, editingBookId: null }),
+  
+  setUsers: (users) => set({ users }),
   
   addUser: (user) => set((state) => ({ users: [...state.users, user] })),
   

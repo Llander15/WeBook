@@ -1,19 +1,52 @@
 import { useStore } from '@/store/useStore';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import { API_URL } from '@/lib/api';
 
 export const CartView = () => {
-  const { cart, clearCart, setView } = useStore();
+  const { cart, clearCart, setView, updateBook } = useStore();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) {
       toast.error('Add items first!');
       return;
     }
-    toast.success('Order successful!');
-    clearCart();
-    setView('home');
+
+    setIsProcessing(true);
+    try {
+      // Update stocks for each item in the cart
+      for (const item of cart) {
+        const newStocks = item.stocks - item.quantity;
+        const response = await fetch(`${API_URL}/books/${item.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: item.title,
+            author: item.author,
+            category: item.category,
+            price: item.price,
+            stocks: Math.max(0, newStocks),
+            cover: item.cover,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Failed to update stock');
+        
+        // Update local store
+        updateBook(item.id, { stocks: Math.max(0, newStocks) });
+      }
+
+      toast.success('Order successful!');
+      clearCart();
+      setView('home');
+    } catch (error) {
+      toast.error('Checkout failed. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -62,9 +95,10 @@ export const CartView = () => {
 
         <button
           onClick={handleCheckout}
-          className="w-full py-5 bg-foreground text-background rounded-3xl font-black text-xl mt-6 hover:bg-foreground/90 transition-colors"
+          disabled={isProcessing}
+          className="w-full py-5 bg-foreground text-background rounded-3xl font-black text-xl mt-6 hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Complete Checkout
+          {isProcessing ? 'Processing...' : 'Complete Checkout'}
         </button>
       </div>
     </div>

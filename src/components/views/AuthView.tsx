@@ -1,39 +1,72 @@
 import { FormEvent, useState } from 'react';
 import { useStore } from '@/store/useStore';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 export const AuthView = () => {
-  const { authMode, setAuthMode, setUser, setView, users, addUser } = useStore();
+  const { authMode, setAuthMode, setUser, setView } = useStore();
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
     password: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const isLogin = authMode === 'login';
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    const { email, fullname } = formData;
-    const name = fullname || email.split('@')[0];
-    
-    let existing = users.find((u) => u.email === email);
-    
-    if (!existing) {
-      const newUser = {
-        id: Date.now(),
-        name,
-        email,
-        role: email.includes('admin') ? 'admin' as const : 'user' as const,
-      };
-      addUser(newUser);
-      existing = newUser;
+    setIsLoading(true);
+
+    try {
+      const { email, password, fullname } = formData;
+
+      if (isLogin) {
+        // Login flow
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Invalid email or password');
+        }
+
+        const data = await response.json();
+        setUser(data.user);
+        toast.success(`Welcome back, ${data.user.name}!`);
+        setView(data.user.role === 'admin' ? 'admin' : 'home');
+      } else {
+        // Register flow
+        if (!fullname.trim()) {
+          throw new Error('Full name is required');
+        }
+
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: fullname, email, password }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Registration failed');
+        }
+
+        const data = await response.json();
+        setUser(data.user);
+        toast.success('Account created successfully!');
+        setView(data.user.role === 'admin' ? 'admin' : 'home');
+      }
+
+      // Reset form
+      setFormData({ fullname: '', email: '', password: '' });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setUser(existing);
-    toast.success(isLogin ? `Welcome back, ${existing.name}!` : 'Account created!');
-    setView(existing.role === 'admin' ? 'admin' : 'home');
   };
 
   const toggleMode = () => {
@@ -87,9 +120,10 @@ export const AuthView = () => {
 
         <button 
           type="submit"
-          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black shadow-xl hover:bg-primary/90 transition-colors"
+          disabled={isLoading}
+          className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black shadow-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLogin ? 'Login' : 'Create Account'}
+          {isLoading ? 'Processing...' : (isLogin ? 'Login' : 'Create Account')}
         </button>
 
         <div className="text-center pt-4">

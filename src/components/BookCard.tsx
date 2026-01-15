@@ -41,6 +41,13 @@ export const BookCard = ({ book }: BookCardProps) => {
         <div className="absolute top-3 left-3">
           <span className="category-badge">{book.category}</span>
         </div>
+        {book.stocks === 0 && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <span className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg font-black text-sm">
+              Out of Stock
+            </span>
+          </div>
+        )}
       </div>
       
       <h3 className="font-bold truncate">{book.title}</h3>
@@ -49,10 +56,11 @@ export const BookCard = ({ book }: BookCardProps) => {
       <div className="flex items-center justify-between">
         <span className="text-xl font-black text-primary">₱{book.price}</span>
         
-        <div className="flex items-center bg-muted rounded-xl p-1">
+        <div className={`flex items-center bg-muted rounded-xl p-1 ${book.stocks === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}>
           <button
             onClick={() => handleAdjust(-1)}
-            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+            disabled={book.stocks === 0}
+            className="p-1.5 text-muted-foreground hover:text-primary transition-colors disabled:cursor-not-allowed"
           >
             <Minus className="h-3 w-3" />
           </button>
@@ -61,7 +69,8 @@ export const BookCard = ({ book }: BookCardProps) => {
           </span>
           <button
             onClick={() => handleAdjust(1)}
-            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+            disabled={book.stocks === 0}
+            className="p-1.5 text-muted-foreground hover:text-primary transition-colors disabled:cursor-not-allowed"
           >
             <Plus className="h-3 w-3" />
           </button>

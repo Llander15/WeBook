@@ -1,6 +1,7 @@
-import { FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
 import { useStore } from '@/store/useStore';
 import { toast } from 'sonner';
+import { API_URL } from '@/lib/api';
 
 export const BookForm = () => {
   const { 
@@ -11,19 +12,46 @@ export const BookForm = () => {
     addBook,
     updateBook 
   } = useStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
-    if (editingBookId) {
-      updateBook(editingBookId, adminFormDraft);
-      toast.success('Book updated successfully');
-    } else {
-      addBook({ ...adminFormDraft, id: Date.now() });
-      toast.success('New book published');
+    setIsSubmitting(true);
+
+    try {
+      if (editingBookId) {
+        // Update existing book
+        const response = await fetch(`${API_URL}/books/${editingBookId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminFormDraft),
+        });
+
+        if (!response.ok) throw new Error('Failed to update book');
+
+        updateBook(editingBookId, adminFormDraft);
+        toast.success('Book updated successfully');
+      } else {
+        // Create new book
+        const response = await fetch(`${API_URL}/books`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(adminFormDraft),
+        });
+
+        if (!response.ok) throw new Error('Failed to create book');
+
+        const data = await response.json();
+        addBook({ ...adminFormDraft, id: data.id });
+        toast.success('New book published');
+      }
+
+      resetAdminFormDraft();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save book');
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    resetAdminFormDraft();
   };
 
   const handleChange = (field: string, value: string | number) => {
@@ -118,16 +146,18 @@ export const BookForm = () => {
         <div className="flex gap-2 mt-4">
           <button
             type="submit"
-            className="flex-grow py-3 bg-primary rounded-xl font-black text-xs uppercase text-primary-foreground hover:bg-primary/90 transition-colors"
+            disabled={isSubmitting}
+            className="flex-grow py-3 bg-primary rounded-xl font-black text-xs uppercase text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {editingBookId ? 'Update' : 'Publish'}
+            {isSubmitting ? 'Saving...' : (editingBookId ? 'Update' : 'Publish')}
           </button>
           
           {editingBookId && (
             <button
               type="button"
               onClick={resetAdminFormDraft}
-              className="px-4 py-3 bg-muted/30 rounded-xl font-black text-xs uppercase hover:bg-muted/50 transition-colors"
+              disabled={isSubmitting}
+              className="px-4 py-3 bg-muted/30 rounded-xl font-black text-xs uppercase hover:bg-muted/50 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
