@@ -1,7 +1,7 @@
 import { useStore } from '@/store/useStore';
 import { BookCard } from '@/components/BookCard';
 
-const Index = () => {
+export const HomeView = () => {
   const { books, searchQuery } = useStore();
 
   const filteredBooks = books.filter((book) =>
@@ -24,5 +24,3 @@ const Index = () => {
     </div>
   );
 };
-
-export default Index;
