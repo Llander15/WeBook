@@ -3,14 +3,20 @@ import mysql from 'mysql2/promise';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Serve static files from React build
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Database connection pool
 const pool = mysql.createPool({
@@ -250,6 +256,11 @@ app.delete('/api/cart/:userId', (req, res) => handleCart(req, res));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running' });
+});
+
+// Serve React app for all other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
