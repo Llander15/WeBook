@@ -1,25 +1,48 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { Navbar } from "@/components/Navbar";
+import { ActionBar } from "@/components/ActionBar";
+import { HomeView } from "@/components/views/HomeView";
+import { AuthView } from "@/components/views/AuthView";
+import { CartView } from "@/components/views/CartView";
+import { AdminView } from "@/components/views/AdminView";
+import { useStore } from "@/store/useStore";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { view } = useStore();
+
+  const renderView = () => {
+    switch (view) {
+      case 'home':
+        return <HomeView />;
+      case 'login':
+        return <AuthView />;
+      case 'cart':
+        return <CartView />;
+      case 'admin':
+        return <AdminView />;
+      default:
+        return <HomeView />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow">{renderView()}</main>
+      <ActionBar />
+    </div>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AppContent />
     </TooltipProvider>
   </QueryClientProvider>
 );
