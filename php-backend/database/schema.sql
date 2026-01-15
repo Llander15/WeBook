@@ -34,10 +34,7 @@ CREATE TABLE cart_items (
     user_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
-    created_at DATE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_book (user_id, book_id)
+    created_at DATE
 );
 
 -- Orders table (for checkout history)
@@ -46,8 +43,7 @@ CREATE TABLE orders (
     user_id INT NOT NULL,
     total_amount REAL NOT NULL,
     status VARCHAR(50) DEFAULT 'pending',
-    created_at DATE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    created_at DATE
 );
 
 -- Order items table
@@ -56,9 +52,7 @@ CREATE TABLE order_items (
     order_id INT NOT NULL,
     book_id INT NOT NULL,
     quantity INT NOT NULL,
-    price_at_purchase REAL NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE SET NULL
+    price_at_purchase REAL NOT NULL
 );
 
 -- Insert default admin user (password: admin123)
