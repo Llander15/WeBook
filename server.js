@@ -67,6 +67,7 @@ async function handleBooks(req, res) {
           const [rows] = await conn.query('SELECT * FROM books ORDER BY created_at DESC');
           res.json(rows);
         }
+        conn.release();
         break;
 
       case 'POST':
@@ -84,6 +85,7 @@ async function handleBooks(req, res) {
           [title, author, category, price, stocks, cover || '']
         );
         res.json({ id: result.insertId, message: 'Book created' });
+        conn.release();
         break;
 
       case 'PUT':
@@ -101,11 +103,13 @@ async function handleBooks(req, res) {
           [bookData.title, bookData.author, bookData.category, bookData.price, bookData.stocks, bookData.cover || '', id]
         );
         res.json({ message: 'Book updated' });
+        conn.release();
         break;
 
       case 'DELETE':
         await conn.query('DELETE FROM books WHERE id = ?', [id]);
         res.json({ message: 'Book deleted' });
+        conn.release();
         break;
 
       default:
@@ -143,6 +147,7 @@ async function handleUsers(req, res) {
           );
           res.json(rows);
         }
+        conn.release();
         break;
 
       case 'PUT':
@@ -151,11 +156,13 @@ async function handleUsers(req, res) {
           await conn.query('UPDATE users SET role = ? WHERE id = ?', [role, id]);
           res.json({ message: 'User role updated' });
         }
+        conn.release();
         break;
 
       case 'DELETE':
         await conn.query('DELETE FROM users WHERE id = ?', [id]);
         res.json({ message: 'User deleted' });
+        conn.release();
         break;
 
       default:
@@ -189,6 +196,7 @@ async function handleAuth(req, res) {
       } else {
         res.status(401).json({ error: 'Invalid credentials' });
       }
+      conn.release();
     } else if (action === 'register') {
       const hashedPassword = await bcrypt.hash(password, 10);
       // Only admin@webook.com can be admin, all others are users
@@ -216,6 +224,7 @@ async function handleAuth(req, res) {
           throw err;
         }
       }
+      conn.release();
     }
 
     conn.release();
